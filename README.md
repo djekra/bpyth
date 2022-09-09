@@ -1,3 +1,3 @@
 # bpyth
-Python Tools
-* Eins
+Some Python Tools, see `jupyter` directory
+
