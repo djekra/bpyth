@@ -5,6 +5,11 @@
 ############################################################################################################# 
 
 
+def human_readable_number(inp):
+    return inp
+
+
+
 def human_readable_seconds(seconds):
     '''Converts seconds to human readable time'''
     TIME_DURATION_UNITS = (
