@@ -4,9 +4,30 @@
 ###
 ############################################################################################################# 
 
+import math 
 
-def human_readable_number(inp):
-    return inp
+def human_readable_number(x, digits=3):
+    '''
+    Rounds a number to a fixed number of significant digits.
+    see https://stackoverflow.com/questions/3410976/how-to-round-a-number-to-significant-figures-in-python for discussion
+    '''
+    if not isinstance(x,int) and not isinstance(x,float):
+        return x
+    if digits <=0:
+        return x
+    if x == 0 or not math.isfinite(x):
+        return x
+    digits -= math.ceil(math.log10(abs(x)))
+    result = round(x, digits) 
+    if math.modf(result)[0] == 0:
+        return int(result)
+    return result  
+
+def human_readable_number_1(x):    return human_readable_number(x, digits=1)
+def human_readable_number_2(x):    return human_readable_number(x, digits=2)
+def human_readable_number_3(x):    return human_readable_number(x, digits=3)
+def human_readable_number_4(x):    return human_readable_number(x, digits=4)
+
 
 
 
