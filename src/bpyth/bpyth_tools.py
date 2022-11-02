@@ -1,3 +1,5 @@
+import sys
+from .bpyth_human import human_readable_bytes
 
 #############################################################################################################
 ###
@@ -51,7 +53,7 @@ def memory_consumption(locals_):
     bpy.memory_consumption(locals())
     '''
     
-    for name, size in sorted(((name, sys.getsizeof(value)) for name, value in locals_.items()),
+    for name, size in sorted((    (name, sys.getsizeof(value)) for name, value in locals_.items()    ),
                              key= lambda x: -x[1])[:10]:
         print("{:>30}: {:>8}".format(  name, human_readable_bytes(size)   ))
     
