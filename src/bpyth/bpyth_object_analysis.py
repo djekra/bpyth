@@ -1,4 +1,7 @@
 
+import sys
+from .bpyth_human import human_readable_bytes
+
 
 #############################################################################################################
 ###
@@ -31,7 +34,11 @@ def rtype(inputobjekt):
         try:
             e = s.iloc[0]
         except:
-            return ('DataFrame','Series')        
+            return ('DataFrame','Series')       
+        
+        if inputobjekt.shape[1] > 1:
+            return ('DataFrame','Series') 
+        
         return ('DataFrame','Series',stype(e))
     
     
@@ -148,4 +155,43 @@ def has_shape(inputobjekt):
             return True
         except StopIteration:
             return False        
+        
+        
+        
+  
+    
+def memory_consumption( iteration_of_objects, limit=10, use_rtype=False):
+    '''
+    Returns the memory consumption of Python objects.
+    * iteration_of_objects: can be e.g. a DataFrame or just locals()
+    * limit: Limits the output size
+    * use_rtype: Use rtype instead of type?
+    
+    For the memory consumption of the biggest 10 local variables call:
+    bpy.memory_consumption( locals() )
+    '''    
+    result = []
+    list_of_objects = list(iteration_of_objects.items())
+    for var, obj in list_of_objects:
+        size = sys.getsizeof(obj)
+        if use_rtype:
+            typ = rtype(obj)
+        else:
+            typ = stype(obj) 
+        result.append( ( var, typ, size, human_readable_bytes(size) ) )
+    result = sorted(result, key= lambda x: -x[2])
+    result = result[:limit]
+    result = [(r[0], r[1], r[3]) for r in result]
+    return result
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     

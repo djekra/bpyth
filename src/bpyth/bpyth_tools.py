@@ -1,5 +1,4 @@
-import sys
-from .bpyth_human import human_readable_bytes
+
 
 #############################################################################################################
 ###
@@ -45,17 +44,8 @@ def raise_if(error):
 
 
 
-
-def memory_consumption(locals_):
-    '''
-    Returns the memory consumption of all local variables.
-    Call:
-    bpy.memory_consumption(locals())
-    '''
     
-    for name, size in sorted((    (name, sys.getsizeof(value)) for name, value in locals_.items()    ),
-                             key= lambda x: -x[1])[:10]:
-        print("{:>30}: {:>8}".format(  name, human_readable_bytes(size)   ))
+
     
  
     

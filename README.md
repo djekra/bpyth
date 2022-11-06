@@ -27,6 +27,7 @@ Some boring Python Tools, see `jupyter` directory
 * `shape`: Recursive len. Parses an n-dimensional object and returns a tuple of sizes.
 * `has_shape`: Does an object have additional dimensions? (Skalars: No, Strings: No, Empty Iterables: No,
     Other Iterables: Yes)
+* `memory_consumption`: Returns the memory consumption of Python objects.    
     
 ## String Tools
 * `superstrip`     : Removes Unicode whitespaces
