@@ -1,5 +1,5 @@
 
-import os, pickle
+import os, pickle, warnings
 
 #, sys, time, random, string, re, datetime
 
@@ -36,8 +36,7 @@ def load_pickle( filename ):
     f.close()
     return result
 
-laden     = load_pickle
-speichern = dump_pickle
+
 
 
 
@@ -98,3 +97,29 @@ StreamZeilen = StreamLines
             
     
     
+
+def path_join(basepath, supplement, test='ignore'):
+    '''
+    Joins two parts of a path and optionally tests if the path exists.
+    basepath:   a path
+    supplement: path to join in forward slash notation.
+    test:       should it be checked if the path exists? If yes, set it to 'warn' or 'raise'.   
+    '''
+    if supplement.endswith('/'):
+        supplement = supplement[:-1]
+    parts = tuple(supplement.split('/'))
+    result = os.path.join( basepath, *parts)
+    
+    if test == 'warn':
+        if not os.path.exists( os.path.dirname(result) ): 
+            warnings.warn('Directory does not exist: ' + result) 
+        if not os.path.exists( result ): 
+            warnings.warn('Path does not exist: ' + result) 
+            
+    elif test == 'raise':
+        if not os.path.exists( os.path.dirname(result) ): 
+            raise Exception('Directory does not exist: ' + result) 
+        if not os.path.exists( result ): 
+            raise Exception('Path does not exist: ' + result)             
+    
+    return result
