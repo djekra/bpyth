@@ -16,6 +16,7 @@ Some boring Python Tools, see `jupyter` directory
 * `human_readable_bytes`:   Converts Bytes to human readable size
 
 ## Iterable Tools
+* `minivenn`: Compare two sets
 * `flatten`: Yield all items from any nested iterable
 * `remove_dups`: Remove dups from a list whilst-preserving-order
 * `sort_by_priority_list`: Sort a list by a list or tuple of prioritized objects
@@ -35,3 +36,8 @@ Some boring Python Tools, see `jupyter` directory
 * `remove_dupwords`: Removes dup words from a string whilst-preserving-order
 * `longest_substr` : Finds the longest common substring in a list of strings
 * `random_str`     : Returns a random string 
+
+
+```python
+
+```

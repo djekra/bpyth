@@ -109,5 +109,44 @@ def flatten(items):
 
 
             
+#############################################################################################################
+###
+### Set
+###
+#############################################################################################################             
+    
+
+    
+def minivenn(set0, set1, format=''):
+    """
+    Compare two iterables like sets.
+    format='':             Returns 3 sets like a Venndiagram
+    format='diff':         Returns only the differences between set0 and set1, not the intersection.
+                           Returns [] if the set are equal.
+    format='count':        Returns only the counts of the Venndiagramm.
+    """
+    
+    if not isinstance(set0, set):
+        set0 = set(set0)
+    if not isinstance(set1, set):        
+        set1 = set(set1)  
+        
+    if format=='diff':
+        if set0 != set1:
+            result = [set0 - set1, 
+                      set1 - set0]      
+        else:
+            result = []
+    elif format=='count':
+        result = [len(set0 - set1), 
+                  len(set0 & set1),
+                  len(set1 - set0)]  
+    else: # default
+        result = [set0 - set1, 
+                  set0 & set1,
+                  set1 - set0]        
+        
+    return result
+    
     
     
