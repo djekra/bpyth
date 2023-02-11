@@ -1,5 +1,6 @@
 # bpyth
-Some boring Python Tools, see `jupyter` directory
+Some boring Python Tools, see `jupyter` directory.<br>
+You can try the notebooks there online via Colab.
 
 ## Install
 `pip install bpyth`
