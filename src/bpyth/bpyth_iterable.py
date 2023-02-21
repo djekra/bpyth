@@ -117,13 +117,14 @@ def flatten(items):
     
 
     
-def minivenn(set0, set1, format=''):
+def minivenn(set0, set1, format='dict'):
     """
-    Compare two iterables like sets.
-    format='':             Returns 3 sets like a Venndiagram
-    format='diff':         Returns only the differences between set0 and set1, not the intersection.
-                           Returns [] if the set are equal.
-    format='count':        Returns only the counts of the Venndiagramm.
+    Compare two iterables like sets. Returns 3 sets like a Venndiagram.
+    format='print'         Formated print of a dict with 3 keys   
+    format='print2'        Formated print of a dict with 2 keys      
+    format='dict':         Returns a dict with 3 keys 
+    format='list':         Returns a list with 3 elements
+    format='count':        Returns a dict with 3 keys , the elements are only counts of the Venndiagramm.
     """
     
     if not isinstance(set0, set):
@@ -131,20 +132,43 @@ def minivenn(set0, set1, format=''):
     if not isinstance(set1, set):        
         set1 = set(set1)  
         
-    if format=='diff':
-        if set0 != set1:
-            result = [set0 - set1, 
-                      set1 - set0]      
-        else:
-            result = []
+    if format=='dict':
+        result = { 'left_only':  set0 - set1,
+                   'both':       set0 & set1,
+                   'right_only': set1 - set0,              
+                 }  
+    
     elif format=='count':
-        result = [len(set0 - set1), 
-                  len(set0 & set1),
-                  len(set1 - set0)]  
-    else: # default
+        result = { 'left_only':  len(set0 - set1),
+                   'both':       len(set0 & set1),
+                   'right_only': len(set1 - set0),              
+                 }      
+    
+    elif format=='list':
         result = [set0 - set1, 
                   set0 & set1,
-                  set1 - set0]        
+                  set1 - set0] 
+        
+    elif format=='print':
+        v = [set0 - set1, 
+             set0 & set1,
+             set1 - set0]         
+        result = 'left_only:  {0}\nboth:       {1}\nright_only: {2}\n'.format(*v) 
+        result = result.replace('set()','{}')
+        print(result)
+        return
+    
+    elif format=='print2':
+        v = [set0 - set1, 
+             set1 - set0]         
+        result = 'left_only:  {0}\nright_only: {1}\n'.format(*v) 
+        result = result.replace('set()','{}')
+        print(result)
+        return    
+            
+        
+    else:
+        raise ValueError('format not recognised')
         
     return result
     

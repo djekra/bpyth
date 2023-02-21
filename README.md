@@ -1,6 +1,8 @@
 # bpyth
-Some boring Python Tools, see `jupyter` directory.<br>
-You can try the notebooks there online via Colab.
+Some boring Python Tools, see `jupyter` directory.
+
+## Try out
+The directory `jupyter` contains many notebooks with examples. They are very easy to try out interactively online, with Google Colab. Just click the link at the top of the page and then select Runtime/Run all from the menu in Colab.
 
 ## Install
 `pip install bpyth`
