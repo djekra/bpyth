@@ -1,4 +1,10 @@
-from collections        import Counter, defaultdict, Iterable
+
+try:
+  from collections import Iterable
+except:
+    from collections.abc import Iterable
+
+from collections        import Counter, defaultdict
 from functools          import lru_cache  
 
 
