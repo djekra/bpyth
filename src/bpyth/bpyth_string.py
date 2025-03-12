@@ -24,6 +24,8 @@ def superstrip(my_str):
       
 def remove_words( text, list_of_stopwords ):
     '''Removes stopwords'''
+    if not list_of_stopwords:
+        return text
     list_of_stopwords = [re.escape(w) for w in list_of_stopwords]
     pattern = re.compile(r'\b(' + r'|'.join(list_of_stopwords) + r')\b\s*')
     return pattern.sub('', text)
@@ -60,7 +62,16 @@ def random_str(size=10, size_min=None, size_max=None, mix=string.ascii_letters):
       See https://docs.python.org/3/library/string.html
       e.g. mix = string.digits + string.punctuation + 'AAAAAAAAA'      
     '''
-    if size_min or size_max  and  size_max!=0:
+    if size_max is not None and size_max <= 0:
+        return ''
+
+    if size_max is not None and size_min is None:
+        size_min = size_max
+
+    if size_min is not None and size_max is None:
+        size_max = size_min
+
+    if size_min or size_max:
         size = random.randint(size_min,size_max)  
 
     result = ''.join(random.choice(mix) for x in range(size))

@@ -20,46 +20,66 @@ from functools          import lru_cache
 
 
 
+
 def remove_dups(seq):
-    '''Remove dups from a list whilst-preserving-order''' 
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
+    """
+    Removes duplicates from a list while preserving the original order.
+
+    This function considers elements of different types as distinct, even if their values are equal.
+    For example, `1` (integer), `1.0` (float), and `True` (boolean) are treated as different elements.
+
+    Args:
+        seq: The input list (or any iterable).
+
+    Returns:
+        A new list with duplicates removed, maintaining the original order.
+
+    Examples:
+        >>> remove_dups([1, 2, 2, 3, 4, 4, 4, 5])
+        [1, 2, 3, 4, 5]
+        >>> remove_dups([1, 1.0, 1.0, "1", "1", True, True, False, False, None, None, "1"])
+        [1, 1.0, '1', True, False, None]
+        >>> remove_dups([1, (1,2), (1,2), [1,2], [1,2], {1,2}, {1,2}])
+        [1, (1, 2), [1, 2], {1, 2}]
+    """
+    seen = []
+    result = []
+    for x in seq:
+        if (x, type(x)) not in seen:
+            seen.append((x, type(x)))
+            result.append(x)
+    return result
 
 
- 
 
 
 
-# Sort list by a list of prioritized objects
-# You can prepare the priority object with make_priority_dict,
-# if you want to use always the same in pandas
-def sort_by_priority_list(sortme_list, priority):
-    '''Sort a list by a list or tuple of prioritized objects.
+
+def sort_by_priority_list(sortme_list, priority, default_value=float('inf') ):
+    """
+    Sort a list by a list or tuple of prioritized objects.
     (You can prepare the priority object with make_priority_dict,
-    if you want to use always the same priorities in pandas)    
-    '''
-    
+    if you want to use always the same priorities in pandas)
+    """
+
     if len(sortme_list) < 2:
         return sortme_list
 
     if type(priority) is tuple:
-        priority = make_priority_dict(priority)
-        
-    elif type(priority) is list:
-        priority = make_priority_dict(tuple(priority))        
-        
-    priority_getter = priority.__getitem__  # dict.get(key)
-    return sorted(sortme_list, key=priority_getter)
+        priority = make_priority_dict(priority, default_value)
 
+    elif type(priority) is list:
+        priority = make_priority_dict(tuple(priority), default_value)
+
+    priority_getter = priority.__getitem__  # dict.get(key)
+    return [x[1] for x in sorted(enumerate(sortme_list), key=lambda x: (priority_getter(x[1]), x[0]))]
 
 
 @lru_cache
-def make_priority_dict(priority_tuple):
-    #print('Neuberechnung')
+def make_priority_dict(priority_tuple, default_value=float('inf')):
+    # print('Neuberechnung')
     priority_list = list(priority_tuple)
-    return defaultdict(   lambda: len(priority_list), zip(priority_list, range(len(priority_list)),),   )    
-
+    return defaultdict(lambda: default_value, zip(priority_list, range(len(priority_list))))
 
 
 
@@ -105,7 +125,11 @@ def ranking_from_counter( counts ):
 
 
 def flatten(items):
-    """Yield all items from any nested iterable"""
+    """
+    Yields all elements from a potentially nested iterable, effectively flattening the structure.
+    Nested lists, tuples, and other iterables are traversed recursively, yielding their individual elements.
+    Strings and bytes are treated as single elements and are not flattened further.
+    """
     for x in items:
         if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
             for sub_x in flatten(x):

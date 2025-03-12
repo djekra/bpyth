@@ -3,7 +3,7 @@
 
 [project]
 name            = "bpyth"
-version         = "0.1.9"        
+version         = "0.2.0"
 
 requires-python = ">=3.8"
 dependencies    = []
@@ -52,6 +52,9 @@ where = ['src']
 blab = ['*.txt', '*.ipynb']
 
 
-
+[tool.pytest.ini_options]
+markers = [
+    "jetzt: nur mit @pytest.mark.jetzt markierte Tests ausführen",
+]
 
 
