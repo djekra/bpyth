@@ -1,82 +1,87 @@
 
 import sys
+import re
 from .bpyth_human import human_readable_bytes
+from collections.abc import Iterable
 
+# Optionaler Import von Pandas
+try:
+    import pandas as pd
+    pandas_available = True
+except ImportError:
+    pandas_available = False
 
 #############################################################################################################
 ###
 ### Object analysis
 ###
 #############################################################################################################        
-    
+
 def stype(obj):
     '''
     Returns the type as a short string
     '''
-    return type(obj).__name__.split('.')[-1]
+    type_name = type(obj).__name__
+    return re.sub(r'\d+$', '', type_name) # Zahlen am Ende abschneiden
 
 
-def rtype(inputobjekt):
+def rtype(inp):
     '''
-    Recursive type. Parses an n-dimensional object and returns a tuple of stype for the scalar in the top left corner. 
-    E.g. an array of lists of ints returns ('ndarray', 'list', 'int').
-    Caution: only a single scalar is found. A heterogeneous data structure cannot be parsed meaningfully. 
+    Returns the type of the input object as a tuple.
     '''
+    if pandas_available:
+        if isinstance(inp, pd.DataFrame):
+            if inp.empty:
+                return ("DataFrame",)
+            else:
+                return ("DataFrame",) + rtype(inp.iloc[0])
 
-    # DataFrame
-    if stype(inputobjekt) == 'DataFrame':
-        try:
-            s = inputobjekt.iloc[0]
-        except:
-            return ('DataFrame',)
-        try:
-            e = s.iloc[0]
-        except:
-            return ('DataFrame', 'Series')
+        if isinstance(inp, pd.Series):
+            if inp.empty:
+                return ("Series",)
+            first_element_type = rtype(inp.iloc[0])
+            return ("Series",) + first_element_type
 
-        if inputobjekt.shape[1] > 1:
-            return ('DataFrame', 'Series')
+    if isinstance(inp, str):
+        return ("str",)
 
-        return ('DataFrame', 'Series', stype(e))
+    if isinstance(inp, bytes):
+        return ("bytes",)
 
-    def itype(inputobjekt, result=-1):
+    if isinstance(inp, bool):
+        return ("bool",)
 
-        # type bestimmen
-        t = stype(inputobjekt)
-        # print(result,t)
+    if isinstance(inp, int):
+        return ("int",)
 
-        if result == -1:
-            result = []
-            result.append(t)
+    if isinstance(inp, float):
+        return ("float",)
+
+    if inp is None:
+        return ("NoneType",)
+
+    if isinstance(inp, dict):
+        if len(inp) == 0:
+            return ("dict",)
         else:
-            result.append(t)
-        # print(t, len(result))
+            first_value = next(iter(inp.values()))
+            return ("dict",) + rtype(first_value)
 
-        if t in ['str', 'bytes']:  # iterable, soll aber nicht durchiteriert werden
-            return result
-
-        if t in ['dict']:
-            iterator = iter(inputobjekt.values())
+    if isinstance(inp, set):
+        if len(inp) == 0:
+            return ("set",)
         else:
-            try:
-                iterator = iter(inputobjekt)
-            # nicht iterable: Rekursionsende
-            except TypeError:
-                return result
+            first_value = next(iter(inp))
+            return ("set",) + rtype(first_value)
 
-        # ist iterable
-        try:
-            return itype(next(iterator), result=result)
-        except StopIteration:
-            return result
-        # -- ENDE itype
+    if isinstance(inp, Iterable):
+        if len(inp) == 0:
+            return (stype(inp),)
+        else:
+            first_value = inp[0]
+            return (stype(inp),) + rtype(first_value)
 
-    # rtype
-    result = itype(inputobjekt)
-    result = [e for e in result if not e.endswith('_')]  # filtert z.B. 'str_' raus
-    return tuple(result)
-
-
+    return (stype(inp),)
 
 
 
