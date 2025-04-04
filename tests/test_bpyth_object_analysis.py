@@ -1,5 +1,11 @@
 import pytest
-from bpyth.bpyth_object_analysis import stype, rtype, shape, has_shape, memory_consumption
+from bpyth.bpyth_object_analysis import stype, rtype, shape, has_shape, has_no_content, memory_consumption
+
+try:
+    import numpy as np
+    numpy_not_installed = False
+except ImportError:
+    numpy_not_installed = True
 
 class TestStype:
     def test_stype_normal(self):
@@ -286,6 +292,125 @@ class TestHasShape:
         assert has_shape({}) == False
         assert has_shape({"a": [1, 2], "b": [3, 4]}) == True
         assert has_shape({"a": [1, 2], "b": 3}) == True
+
+
+
+class TestHasNoContent:
+
+    def test_has_no_content(self):
+
+        # Teste verschiedene nicht-leere Objekte
+        assert has_no_content(1) == False
+        assert has_no_content("abc") == False
+        assert has_no_content([1, 2, 3]) == False
+        assert has_no_content({"a": 1}) == False
+        assert has_no_content({1, 2, 3}) == False
+        assert has_no_content((1, 2, 3)) == False
+        assert has_no_content(b"abc") == False
+
+        # Teste verschiedene leere Objekte
+        assert has_no_content(None) == True
+        assert has_no_content("") == True
+        assert has_no_content([]) == True
+        assert has_no_content({}) == True
+        assert has_no_content(set()) == True
+        assert has_no_content(()) == True
+        assert has_no_content(b"") == True
+
+        # Teste verschiedene leere, aber mehrdimensionale Objekte
+        assert has_no_content([[]]) == True
+        assert has_no_content([[], []]) == True
+        assert has_no_content([[], [[]]]) == True
+        assert has_no_content([[[]], [[], []]]) == True
+        assert has_no_content(((),)) == True
+        assert has_no_content(((), ((),))) == True
+        assert has_no_content({(): {}}) == True
+        assert has_no_content({(): [], (): {}}) == True
+        assert has_no_content({1: {}}) == True
+        assert has_no_content({(): [1], (): {}}) == True
+
+        # Teste verschiedene nicht-leere, mehrdimensionale Objekte
+        assert has_no_content([[1]]) == False
+        assert has_no_content([[], [1]]) == False
+        assert has_no_content([[[]], [[], [1]]]) == False
+        assert has_no_content((1,)) == False
+        assert has_no_content(((), (1,))) == False
+
+        # Teste verschiedene leere, aber mehrdimensionale Objekte
+        assert has_no_content([[]]) == True
+        assert has_no_content([[], []]) == True
+        assert has_no_content([[], [[]]]) == True
+        assert has_no_content([[[]], [[], []]]) == True
+        assert has_no_content(((),)) == True
+        assert has_no_content(((), ((),))) == True
+        assert has_no_content({(): {}}) == True
+        assert has_no_content({(): [], (): {}}) == True
+        assert has_no_content({1: {}}) == True
+        assert has_no_content({1: [], 2: {}}) == True
+        assert has_no_content({1: [], 2: {3:{}}}) == True
+        assert has_no_content({1: (), 2: {}}) == True
+        assert has_no_content({1: (), 2: {3:()}}) == True
+        assert has_no_content({1: (), 2: {3:[]}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:[]}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{}}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{5:[]}}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{5:()}}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{5:{}}}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{5:{6:[]}}}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{5:{6:()}}}}) == True
+        assert has_no_content({1: (), 2: {3:[], 4:{5:{6:{}}}}}) == True
+
+        # Teste verschiedene nicht-leere, mehrdimensionale Objekte
+        assert has_no_content([[1]]) == False
+        assert has_no_content([[], [1]]) == False
+        assert has_no_content([[[]], [[], [1]]]) == False
+        assert has_no_content((1,)) == False
+        assert has_no_content(((), (1,))) == False
+        assert has_no_content({1: [1]}) == False
+        assert has_no_content({1: [1], 2: {}}) == False
+        assert has_no_content({1: [], 2: {3:1}}) == False
+        assert has_no_content({1: (), 2: {3:1}}) == False
+        assert has_no_content({1: (), 2: {3:[1]}}) == False
+        assert has_no_content({1: (), 2: {3:[1], 4:[]}}) == False
+        assert has_no_content({1: (), 2: {3:[], 4:{5:1}}}) == False
+        assert has_no_content({1: (), 2: {3:[], 4:{5:{6:1}}}}) == False
+
+
+@pytest.mark.skipif(numpy_not_installed, reason="Numpy is not installed")
+class TestIsEmptyNumpy:
+
+    def test_has_no_content(self):
+
+        # Teste leere und nicht-leere NumPy-Arrays
+        assert has_no_content(np.array([])) == True
+        assert has_no_content(np.array([1, 2, 3])) == False
+
+        # Teste verschiedene leere, aber mehrdimensionale NumPy-Arrays
+        assert has_no_content(np.array([[]])) == True
+        assert has_no_content(np.array([[], []])) == True
+        assert has_no_content(np.array([[[]]])) == True
+        assert has_no_content(np.array([[[[]]]])) == True
+        assert has_no_content(np.array([(),])) == True
+        assert has_no_content(np.array([{(): {}}])) == True
+        assert has_no_content(np.array([{(): [], (): {}}])) == True
+        assert has_no_content(np.array([{1: {}}])) == True
+
+        # Teste verschiedene nicht-leere, mehrdimensionale NumPy-Arrays
+        assert has_no_content(np.array([[1]])) == False
+        assert has_no_content(np.array([(1,)])) == False
+        assert has_no_content(np.array([[[1]]])) == False
+        assert has_no_content(np.array([[[1,2]]])) == False
+        assert has_no_content(np.array([[[1,2],[3,4]]])) == False
+        assert has_no_content(np.array([[[1,2],[3,4]],[[1,2],[3,4]]])) == False
+
+
+
+
+
+
+
+
+
 
 
 

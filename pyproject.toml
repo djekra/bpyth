@@ -3,10 +3,10 @@
 
 [project]
 name            = "bpyth"
-version         = "0.2.1"
+version         = "0.2.2"
 
-requires-python = ">=3.8"
-dependencies    = []
+requires-python = ">=3.10"
+dependencies    = ["blab (>=0.2.1,<0.3.0)"]
 
 authors        = [{ name = "djekra", email = "hopsalla@gmail.com" }]
 description     = "Various Python Tools"
@@ -58,3 +58,9 @@ markers = [
 ]
 
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.3.5"
+jupyterlab = ">=4.3.6"
+pandas = ">=2.0"
+polars = ">=1.26"

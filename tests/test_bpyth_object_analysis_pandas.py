@@ -1,5 +1,5 @@
 import pytest
-from bpyth.bpyth_object_analysis import stype, rtype, shape, has_shape
+from bpyth.bpyth_object_analysis import stype, rtype, shape, has_shape, has_no_content
 
 try:
     import pandas as pd
@@ -51,4 +51,10 @@ class TestRtypePandas:
         data = pd.DataFrame([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
         assert rtype(data) == ("DataFrame", "Series", "list", "int")
 
+class TestHasNoContentPandas:
 
+    def test_has_no_content(self):
+        assert has_no_content(pd.Series()) == True
+        assert has_no_content(pd.DataFrame()) == True
+        assert has_no_content(pd.Series([1, 2, 3])) == False
+        assert has_no_content(pd.DataFrame([[1, 2], [3, 4]])) == False

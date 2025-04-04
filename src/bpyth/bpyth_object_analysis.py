@@ -11,6 +11,20 @@ try:
 except ImportError:
     pandas_available = False
 
+# Optionaler Import von Polars
+try:
+    import polars as pl
+    polars_available = True
+except ImportError:
+    polars_available = False
+
+# Optionaler Import von Numpy
+try:
+    import numpy as np
+    numpy_available = True
+except ImportError:
+    numpy_available = False
+
 #############################################################################################################
 ###
 ### Object analysis
@@ -22,7 +36,10 @@ def stype(obj):
     Returns the type as a short string
     '''
     type_name = type(obj).__name__
-    return re.sub(r'\d+$', '', type_name) # Zahlen am Ende abschneiden
+    result = re.sub(r'\d+$', '', type_name) # Zahlen am Ende abschneiden
+    if result == 'intc':
+        return 'int'
+    return result
 
 
 def rtype(inp):
@@ -34,12 +51,25 @@ def rtype(inp):
             if inp.empty:
                 return ("DataFrame",)
             else:
-                return ("DataFrame",) + rtype(inp.iloc[0])
+                return ("DataFrame",) + rtype(inp.iloc[:,0]) # first col
 
         if isinstance(inp, pd.Series):
             if inp.empty:
                 return ("Series",)
             first_element_type = rtype(inp.iloc[0])
+            return ("Series",) + first_element_type
+
+    if polars_available:
+        if isinstance(inp, pl.DataFrame):
+            if inp.is_empty():
+                return ("DataFrame",)
+            else:
+                return ("DataFrame",) + rtype(inp[:, 0]) # first col
+
+        if isinstance(inp, pl.Series):
+            if inp.is_empty():
+                return ("Series",)
+            first_element_type = rtype(inp[0])
             return ("Series",) + first_element_type
 
     if isinstance(inp, str):
@@ -157,9 +187,88 @@ def has_shape(inputobjekt):
             test = next(iterator)
             return True
         except StopIteration:
-            return False        
-        
-        
+            return False
+
+
+def has_no_content(obj):
+    """
+    Recursively checks if an object contains any scalar values.
+    An object is considered empty if it contains no scalars (e.g., int, float, str, etc.)
+    anywhere in its *values* (not keys).
+    """
+    if obj is None:
+        return True
+
+    try:
+        if obj == "":
+            return True
+        if obj == b"":
+            return True
+    except:
+        pass
+
+    # Scalars are considered not empty
+    if isinstance(obj, (int, float, str, bytes, bool)):
+        return False
+
+    # Dict: check only the values
+    if isinstance(obj, dict):
+        if len(obj) == 0:
+            return True
+        else:
+            return all(has_no_content(v) for v in obj.values())
+
+    # Empty container types
+    if isinstance(obj, (list, tuple, set)) and len(obj) == 0:
+        return True
+
+    # Iterable types (excluding strings/bytes already handled)
+    if isinstance(obj, (list, tuple, set)):
+        return all(has_no_content(item) for item in obj)
+
+    # numpy arrays
+    if numpy_available:
+        if isinstance(obj, np.ndarray):
+            if obj.size == 0:
+                return True
+            else:
+                return all(has_no_content(item) for item in obj.flatten())
+
+    # pandas Series
+    if pandas_available:
+        if isinstance(obj, pd.Series):
+            if obj.empty:
+                return True
+            else:
+                return all(has_no_content(item) for item in obj)
+
+    # polars Series
+    if polars_available:
+        if isinstance(obj, pl.Series):
+            if obj.is_empty():
+                return True
+            else:
+                return all(has_no_content(item) for item in obj)
+
+    # pandas DataFrame
+    if pandas_available:
+        if isinstance(obj, pd.DataFrame):
+            return obj.empty
+
+    # polars DataFrame
+    if polars_available:
+        if isinstance(obj, pl.DataFrame):
+            return obj.is_empty()
+
+    # Other iterable types
+    if isinstance(obj, Iterable):
+        try:
+            return all(has_no_content(item) for item in obj)
+        except TypeError:
+            pass
+
+    # Anything else is assumed to be a scalar
+    return False
         
   
     
